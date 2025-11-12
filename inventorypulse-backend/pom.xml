@@ -103,6 +103,20 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			 <plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>11.7.2</version>
+				<configuration>
+					<url>${env.DB_URL}</url>
+					<user>${env.DB_USER}</user>
+					<password>${env.DB_PASSWORD}</password>
+					<schemas>${env.DB_SCHEMA}</schemas>
+					<locations>
+					<location>filesystem:src/main/resources/db/migration</location>
+					</locations>
+				</configuration>
+    		</plugin>
 		</plugins>
 	</build>
 
