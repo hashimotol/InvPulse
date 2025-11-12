@@ -1,0 +1,6 @@
+# Ignore macOS files
+.DS_Store
+
+# Ignore IDE/project files (optional redundancy)
+.idea/
+.vscode/
