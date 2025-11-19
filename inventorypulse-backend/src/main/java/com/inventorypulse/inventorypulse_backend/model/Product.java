@@ -2,8 +2,6 @@ package com.inventorypulse.inventorypulse_backend.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,40 +12,39 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.Instant;
-
 @Entity
-@Table(name = "users")
+@Table(name = "products")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
- public enum Role {
-        ADMIN,
-        MANAGER,
-        VIEWER
-    }
+public class Product {
 
-    @Id
+  @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(columnDefinition = "text", unique = true, nullable = false)
-    private String email;
+    private String sku;
 
-    @Column(name = "password_hash", columnDefinition = "text", nullable = false)
-    private String passwordHash;
+    @Column(nullable = false)
+    private String title;
 
-    @Column(columnDefinition = "text", nullable = false)
-    private String username;
+    @Column(columnDefinition = "text")
+    private String description;
 
-    @Enumerated(EnumType.STRING)
+    private String brand;
+    private String category;
+
+    @Column(name = "image_url", columnDefinition = "text")
+    private String imageUrl;
+
     @Column(nullable = false)
     @Builder.Default
-    private Role role = Role.VIEWER;
+    private Integer stock = 0;
 
-    @Column(name = "created_at", insertable = false, updatable = false)
-    private Instant createdAt;
+    @Column(name = "reorder_threshold", nullable = false)
+    @Builder.Default
+    private Integer reorderThreshold = 0;
 }

@@ -2,52 +2,54 @@ package com.inventorypulse.inventorypulse_backend.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.Instant;
 
 @Entity
-@Table(name = "users")
+@Table(name = "alerts")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
- public enum Role {
-        ADMIN,
-        MANAGER,
-        VIEWER
-    }
+@ToString(exclude = "product")
+public class Alert {
 
+ 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "text", unique = true, nullable = false)
-    private String email;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
-    @Column(name = "password_hash", columnDefinition = "text", nullable = false)
-    private String passwordHash;
+    // DB column is `type`
+    @Column(name = "type", nullable = false)
+    private String type;
 
-    @Column(columnDefinition = "text", nullable = false)
-    private String username;
+    @Column(name = "message", columnDefinition = "text", nullable = false)
+    private String message;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    // DB column is `seen` boolean
+    @Column(name = "seen", nullable = false)
     @Builder.Default
-    private Role role = Role.VIEWER;
+    private boolean seen = false;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private Instant createdAt;
 }
+
