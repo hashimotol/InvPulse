@@ -37,7 +37,7 @@ Tables:
 ## Architecture Design
 
 
-![Architecture Design](./mermaid.png)
+![Architecture Design](./.png)
 
 
 
