@@ -11,42 +11,35 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Getter;
 import lombok.ToString;
 
 import java.time.Instant;
 
 @Entity
-@Table(name = "inventory_transactions")
+@Table(name = "import_batches")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = "product")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class InventoryTransactions {
-
-    @Id
+@ToString(exclude = "uploader")
+public class ImportBatch {
+ @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "file_name", columnDefinition = "text")
+    private String fileName;
+
+    @Column(name = "file_hash", columnDefinition = "text", unique = true)
+    private String fileHash;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private Products product;
-
-    @Column(nullable = false)
-    private Integer delta;
-
-    private String reason;
-
-    @Column(name = "external_reference")
-    private String externalReference;
-
-    private String actor;
+    @JoinColumn(name = "uploader_id")
+    private User uploader;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private Instant createdAt;
