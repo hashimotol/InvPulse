@@ -2,9 +2,12 @@ package com.inventorypulse.inventorypulse_backend.service;
 
 import com.inventorypulse.inventorypulse_backend.dto.product.CreateProductRequest;
 import com.inventorypulse.inventorypulse_backend.dto.product.ProductResponse;
+import com.inventorypulse.inventorypulse_backend.dto.product.UpdateProductRequest;
 import com.inventorypulse.inventorypulse_backend.model.Product;
 import com.inventorypulse.inventorypulse_backend.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -56,6 +59,64 @@ public class ProductService {
 
         Product saved = productRepository.save(product);
         return toProductResponse(saved);
+    }
+
+    public ProductResponse updateProduct(Long id, UpdateProductRequest request) {
+        Product existing = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Product with id " + id + " not found"
+                ));
+
+        // If SKU is changing, ensure no duplicate
+        if (!existing.getSku().equals(request.sku())
+                && productRepository.existsBySku(request.sku())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Product with SKU '" + request.sku() + "' already exists"
+            );
+        }
+
+        existing.setSku(request.sku());
+        existing.setTitle(request.title());
+        existing.setDescription(request.description());
+        existing.setBrand(request.brand());
+        existing.setCategory(request.category());
+        existing.setImageUrl(request.imageUrl());
+        existing.setStock(request.stock());
+        existing.setReorderThreshold(request.reorderThreshold());
+
+        Product saved = productRepository.save(existing);
+        return toProductResponse(saved);
+    }
+
+        public void deleteProduct(Long id) {
+        Product existing = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Product with id " + id + " not found"
+                ));
+
+        productRepository.delete(existing);
+    }
+
+    public List<ProductResponse> getLowStockProducts() {
+        return productRepository.findProductsNeedingReorder()
+                .stream()
+                .map(this::toProductResponse)
+                .toList();
+    }
+
+    public List<ProductResponse> searchProducts(String query) {
+        if (query == null || query.isBlank()) {
+            return getAllProducts();
+        }
+
+        return productRepository.searchByQuery(query, Pageable.unpaged())
+                .getContent()
+                .stream()
+                .map(this::toProductResponse)
+                .toList();
     }
 
     private ProductResponse toProductResponse(Product product) {
