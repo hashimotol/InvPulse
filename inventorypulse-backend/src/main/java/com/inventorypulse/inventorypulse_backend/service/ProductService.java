@@ -1,6 +1,7 @@
 package com.inventorypulse.inventorypulse_backend.service;
 
 import com.inventorypulse.inventorypulse_backend.dto.product.CreateProductRequest;
+import com.inventorypulse.inventorypulse_backend.dto.product.ProductImportResult;
 import com.inventorypulse.inventorypulse_backend.dto.product.ProductResponse;
 import com.inventorypulse.inventorypulse_backend.dto.product.UpdateProductRequest;
 import com.inventorypulse.inventorypulse_backend.model.Product;
@@ -12,6 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.List;
 
 @Service
@@ -19,6 +23,85 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+
+    public ProductImportResult importFromCsv(Reader reader) {
+        int total = 0; //ToDO: change to no longer be hardcoded
+        int imported = 0;
+        int skipped = 0;
+
+        try (BufferedReader br = new BufferedReader(reader)) {
+            String line;
+
+            // 1) Read header
+            String header = br.readLine();
+            if (header == null) {
+                return new ProductImportResult(0, 0, 0);
+            }
+
+            while ((line = br.readLine()) != null) {
+                total++;
+                if (line.isBlank()) {
+                    skipped++;
+                    continue;
+                }
+
+                String[] parts = line.split(",", -1);
+                if (parts.length < 8) {
+                    skipped++;
+                    continue;
+                }
+
+                String sku = parts[0].trim();
+                String title = parts[1].trim();
+                String description = parts[2].trim();
+                String brand = parts[3].trim();
+                String category = parts[4].trim();
+                String imageUrl = parts[5].trim();
+                Integer stock = parseIntSafe(parts[6]);
+                Integer reorderThreshold = parseIntSafe(parts[7]);
+
+                // basic required-field checks
+                if (sku.isEmpty() || title.isEmpty() || reorderThreshold == null) {
+                    skipped++;
+                    continue;
+                }
+
+                try {
+                    CreateProductRequest req = new CreateProductRequest(
+                            sku,
+                            title,
+                            description,
+                            brand,
+                            category,
+                            imageUrl,
+                            stock,
+                            reorderThreshold
+                    );
+                    createProduct(req);
+                    imported++;
+                } catch (ResponseStatusException ex) {
+                    // e.g. duplicate SKU -> skip
+                    skipped++;
+                } catch (Exception ex) {
+                    skipped++;
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read CSV", e);
+        }
+
+        return new ProductImportResult(total, imported, skipped);
+    }
+
+    private Integer parseIntSafe(String s) {
+        try {
+            if (s == null || s.isBlank()) return null;
+            return Integer.parseInt(s.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
 
     public List<ProductResponse> getAllProducts() {
         return productRepository.findAll()
