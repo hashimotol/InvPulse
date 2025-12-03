@@ -1,6 +1,7 @@
 package com.inventorypulse.inventorypulse_backend.controller;
 
 import com.inventorypulse.inventorypulse_backend.dto.product.CreateProductRequest;
+import com.inventorypulse.inventorypulse_backend.dto.product.ProductImportResult;
 import com.inventorypulse.inventorypulse_backend.dto.product.ProductResponse;
 import com.inventorypulse.inventorypulse_backend.dto.product.UpdateProductRequest;
 import com.inventorypulse.inventorypulse_backend.service.ProductService;
@@ -10,8 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
@@ -20,6 +24,19 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+
+    // POST /api/products/import -> ADMIN or MANAGER only
+    @PostMapping("/import")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ProductImportResult importProductsFromCsv(@RequestParam("file") MultipartFile file) {
+        try {
+            return productService.importFromCsv(
+                    new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to import CSV", e);
+        }
+    }
 
     // GET /api/products  -> authenticated only
     @GetMapping
