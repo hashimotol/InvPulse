@@ -53,4 +53,7 @@ public class InventoryTransaction {
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private Instant createdAt;
+
+    @Column(name = "resulting_stock", nullable = false)
+    private Integer resultingStock;
 }
