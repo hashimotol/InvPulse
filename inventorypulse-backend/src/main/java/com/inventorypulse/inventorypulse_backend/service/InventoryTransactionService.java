@@ -35,7 +35,8 @@ public class InventoryTransactionService {
                 .toList();
     }
 
-    public InventoryTransactionResponse createTransaction(Long productId, InventoryTransactionRequest request, String actor) {
+    public InventoryTransactionResponse createTransaction(Long productId, InventoryTransactionRequest request, String actor
+    ) {
         if (request.delta() == null || request.delta() == 0) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
@@ -82,6 +83,7 @@ public class InventoryTransactionService {
                 .reason(request.reason())
                 .externalReference(request.externalReference())
                 .actor(actor)
+                .resultingStock(newStock)
                 .build();
 
         InventoryTransaction saved = transactionsRepository.save(tx);
@@ -94,7 +96,7 @@ public class InventoryTransactionService {
                 saved.getExternalReference(),
                 saved.getActor(),
                 saved.getCreatedAt(),   // populated by DB
-                newStock
+                saved.getResultingStock()
         );
     }
 
@@ -107,7 +109,7 @@ public class InventoryTransactionService {
                 tx.getExternalReference(),
                 tx.getActor(),
                 tx.getCreatedAt(),
-                tx.getProduct().getStock()
+                tx.getResultingStock()
         );
     }
 }
