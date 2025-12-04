@@ -1,7 +1,5 @@
 # InventoryPulse
 
-> **Note:** This README was generated with assistance from AI tools (Claude Code) to provide comprehensive documentation for academic purposes. The codebase itself represents original student work for a university software development project.
-
 <div align="center">
 
 **A full-stack inventory management system for real-time stock tracking and analytics**
@@ -39,11 +37,11 @@
 
 ## Overview
 
-**InventoryPulse** is a modern, full-stack inventory management system designed for small to medium-sized businesses. It provides real-time stock tracking, transaction history, low-stock alerts, and bulk CSV import capabilities through a clean, responsive web interface.
+**InventoryPulse** is a full-stack inventory management system for small to medium-sized businesses. It allows users to track stock levels in real time, view transaction history, get low-stock alerts, and import CSV files.
 
 ### What is InventoryPulse?
 
-InventoryPulse solves the problem of manual inventory tracking by providing:
+InventoryPulse provides the following key features:
 
 - **Real-time inventory monitoring** - Track stock levels across all products instantly
 - **Automated alerts** - Get notified when products reach reorder thresholds
@@ -70,15 +68,15 @@ InventoryPulse follows a modern **three-tier architecture**:
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                         Frontend                            │
-│  React 19 + TypeScript + Tailwind CSS + Vite              │
-│  (Single Page Application - SPA)                           │
+│  React 19 + TypeScript + Tailwind CSS + Vite                |
+│  (Single Page Application - SPA)                            │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        │ HTTP/REST + JWT
                        │
 ┌──────────────────────▼──────────────────────────────────────┐
 │                         Backend                             │
-│  Spring Boot 3.5 + Spring Security + Spring Data JPA      │
+│  Spring Boot 3.5 + Spring Security + Spring Data JPA        │
 │  (RESTful API Server)                                      │
 └──────────────────────┬──────────────────────────────────────┘
                        │
